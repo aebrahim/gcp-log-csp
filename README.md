@@ -74,7 +74,7 @@ Reporting-Endpoints: csp-endpoint="https://YOUR-SERVICE-URL/csp-report"
 
 ## Alerting
 
-The `alerts/` directory contains sample GCP Cloud Monitoring configurations
+The `sample_alerts/` directory contains sample GCP Cloud Monitoring configurations
 that work with the structured logs produced by this service.
 
 ### Log structure
@@ -110,11 +110,11 @@ jsonPayload["csp-report"]["csp-report"]["document-uri"]
 
 ### Alert: more than N reports from a referring domain
 
-`alerts/log-metric-csp-by-referrer.yaml` defines a **log-based metric** that
+`sample_alerts/log-metric-csp-by-referrer.yaml` defines a **log-based metric** that
 counts CSP reports and labels each data point with the hostname extracted from
 `document-uri` (e.g. `"example.com"`).
 
-`alerts/alert-policy-csp-by-referrer.yaml` defines an **alert policy** that
+`sample_alerts/alert-policy-csp-by-referrer.yaml` defines an **alert policy** that
 fires when any single referring domain generates more than **100 reports within
 a 5-minute window**. Adjust `thresholdValue` to match your expected traffic
 before deploying.
@@ -124,11 +124,11 @@ before deploying.
 ```bash
 # 1. Create the log-based metric (once per project)
 gcloud logging metrics create csp_reports_by_referrer \
-  --config-from-file=alerts/log-metric-csp-by-referrer.yaml
+  --config-from-file=sample_alerts/log-metric-csp-by-referrer.yaml
 
 # 2. Create the alert policy
 gcloud alpha monitoring policies create \
-  --policy-from-file=alerts/alert-policy-csp-by-referrer.yaml
+  --policy-from-file=sample_alerts/alert-policy-csp-by-referrer.yaml
 ```
 
 To attach a notification channel (email, Slack, PagerDuty, etc.) first look

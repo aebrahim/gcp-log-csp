@@ -8,11 +8,11 @@
 # Prerequisites:
 #   Deploy the log-based metric first:
 #     gcloud logging metrics create csp_reports_by_referrer \
-#       --config-from-file=alerts/log-metric-csp-by-referrer.yaml
+#       --config-from-file=sample_alerts/log-metric-csp-by-referrer.yaml
 #
 # Deploy this policy with:
 #   gcloud alpha monitoring policies create \
-#     --policy-from-file=alerts/alert-policy-csp-by-referrer.yaml
+#     --policy-from-file=sample_alerts/alert-policy-csp-by-referrer.yaml
 #
 # Adjust `thresholdValue` to the value of N that is appropriate for your
 # traffic level.  The example below fires when any single referrer generates

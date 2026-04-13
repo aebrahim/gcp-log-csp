@@ -7,11 +7,11 @@
 #
 # Deploy with:
 #   gcloud logging metrics create csp_reports_by_referrer \
-#     --config-from-file=alerts/log-metric-csp-by-referrer.yaml
+#     --config-from-file=sample_alerts/log-metric-csp-by-referrer.yaml
 #
 # Update an existing metric with:
 #   gcloud logging metrics update csp_reports_by_referrer \
-#     --config-from-file=alerts/log-metric-csp-by-referrer.yaml
+#     --config-from-file=sample_alerts/log-metric-csp-by-referrer.yaml
 
 name: csp_reports_by_referrer
 description: >-
