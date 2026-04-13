@@ -11,9 +11,9 @@ use std::net::SocketAddr;
 const MAX_BODY_SIZE: usize = 16_384;
 
 /// Build the application router.
-pub fn app() -> Router {
+pub fn app(csp_endpoint: &str) -> Router {
     Router::new()
-        .route("/csp-report", post(handle_csp_report))
+        .route(csp_endpoint, post(handle_csp_report))
         .route("/health", get(health))
         .layer(DefaultBodyLimit::max(MAX_BODY_SIZE))
 }
@@ -77,13 +77,17 @@ async fn main() {
         .and_then(|p| p.parse().ok())
         .unwrap_or(8080);
 
+    let csp_endpoint = std::env::var("CSP_ENDPOINT").unwrap_or_else(|_| "/csp-report".to_string());
+
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = tokio::net::TcpListener::bind(addr)
         .await
         .expect("failed to bind to address");
 
     eprintln!("Listening on {addr}");
-    axum::serve(listener, app()).await.expect("server error");
+    axum::serve(listener, app(&csp_endpoint))
+        .await
+        .expect("server error");
 }
 
 #[cfg(test)]
@@ -96,7 +100,7 @@ mod tests {
 
     #[tokio::test]
     async fn health_returns_ok() {
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .uri("/health")
@@ -120,7 +124,7 @@ mod tests {
             }
         });
 
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .method("POST")
@@ -150,7 +154,7 @@ mod tests {
             }
         }]);
 
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .method("POST")
@@ -169,7 +173,7 @@ mod tests {
     async fn csp_report_with_application_json() {
         let body = serde_json::json!({"test": true});
 
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .method("POST")
@@ -186,7 +190,7 @@ mod tests {
 
     #[tokio::test]
     async fn csp_report_rejects_wrong_content_type() {
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .method("POST")
@@ -203,7 +207,7 @@ mod tests {
 
     #[tokio::test]
     async fn csp_report_rejects_invalid_json() {
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .method("POST")
@@ -220,7 +224,7 @@ mod tests {
 
     #[tokio::test]
     async fn csp_report_rejects_get_method() {
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .method("GET")
@@ -239,7 +243,7 @@ mod tests {
         // Create a body larger than MAX_BODY_SIZE (1 MB)
         let large_body = vec![b'{'; MAX_BODY_SIZE + 1];
 
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .method("POST")
@@ -256,7 +260,7 @@ mod tests {
 
     #[tokio::test]
     async fn unknown_route_returns_404() {
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .uri("/nonexistent")
@@ -271,7 +275,7 @@ mod tests {
 
     #[tokio::test]
     async fn health_returns_empty_body() {
-        let response = app()
+        let response = app("/csp-report")
             .oneshot(
                 Request::builder()
                     .uri("/health")
@@ -283,5 +287,43 @@ mod tests {
 
         let body = response.into_body().collect().await.unwrap().to_bytes();
         assert!(body.is_empty());
+    }
+
+    #[tokio::test]
+    async fn custom_csp_endpoint_accepts_reports() {
+        let body = serde_json::json!({"test": true});
+
+        let response = app("/custom-csp")
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/custom-csp")
+                    .header("content-type", "application/csp-report")
+                    .body(Body::from(serde_json::to_vec(&body).unwrap()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
+    }
+
+    #[tokio::test]
+    async fn custom_csp_endpoint_default_path_returns_404() {
+        let body = serde_json::json!({"test": true});
+
+        let response = app("/custom-csp")
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/csp-report")
+                    .header("content-type", "application/csp-report")
+                    .body(Body::from(serde_json::to_vec(&body).unwrap()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
 }
