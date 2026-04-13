@@ -77,8 +77,7 @@ async fn main() {
         .and_then(|p| p.parse().ok())
         .unwrap_or(8080);
 
-    let csp_endpoint =
-        std::env::var("CSP_ENDPOINT").unwrap_or_else(|_| "/csp-report".to_string());
+    let csp_endpoint = std::env::var("CSP_ENDPOINT").unwrap_or_else(|_| "/csp-report".to_string());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = tokio::net::TcpListener::bind(addr)
