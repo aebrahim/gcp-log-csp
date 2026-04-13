@@ -10,14 +10,14 @@ A minimal [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web
 
 ## Endpoints
 
-| Method | Path          | Description                              |
-|--------|---------------|------------------------------------------|
-| POST   | `/csp-report` | Accepts CSP violation reports            |
-| GET    | `/health`     | Health check (returns `200 OK`)          |
+| Method | Path              | Description                              |
+|--------|-------------------|------------------------------------------|
+| POST   | `$CSP_ENDPOINT`   | Accepts CSP violation reports            |
+| GET    | `/health`         | Health check (returns `200 OK`)          |
 
 ### Accepted Content Types
 
-The `/csp-report` endpoint accepts these content types:
+The CSP report endpoint accepts these content types:
 
 - `application/csp-report` — legacy `report-uri` directive format
 - `application/reports+json` — Reporting API v1 format
@@ -25,9 +25,10 @@ The `/csp-report` endpoint accepts these content types:
 
 ## Configuration
 
-| Variable | Default | Description          |
-|----------|---------|----------------------|
-| `PORT`   | `8080`  | Port to listen on    |
+| Variable       | Default        | Description                        |
+|----------------|----------------|------------------------------------|
+| `PORT`         | `8080`         | Port to listen on                  |
+| `CSP_ENDPOINT` | `/csp-report`  | Path for the CSP report endpoint   |
 
 ## Usage
 
