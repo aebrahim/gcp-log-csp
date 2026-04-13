@@ -18,6 +18,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Multi-arch strategy: QEMU emulation on a single runner vs. native
+      # arm64 runners (e.g. ubuntu-24.04-arm) with a manifest-merge job.
+      # We chose QEMU because:
+      #  - It keeps the workflow to a single job with no manifest-merge step,
+      #    which is much simpler to maintain.
+      #  - Native runners would require a matrix build that pushes per-arch
+      #    digests, plus a separate job to combine them into a manifest list —
+      #    roughly tripling the YAML complexity.
+      #  - The QEMU speed penalty is acceptable here: this is a small Rust
+      #    binary (~50 crate deps) and releases are infrequent.
+      # If build times grow significantly, switch to a matrix of native
+      # runners (ubuntu-latest + ubuntu-24.04-arm) with a manifest merge job.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to Container Registry
         uses: docker/login-action@v4
         with:
@@ -39,6 +57,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
