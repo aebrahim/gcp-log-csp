@@ -44,6 +44,4 @@ metricDescriptor:
 
 # Extract just the hostname from a URL such as "https://example.com/path".
 labelExtractors:
-  referrer_host: >-
-    REGEXP_EXTRACT(jsonPayload["csp-report"]["csp-report"]["document-uri"],
-    "^https?://([^/:?#]+)")
+  referrer_host: 'REGEXP_EXTRACT(jsonPayload["csp-report"]["csp-report"]["document-uri"], "^https?://([^/:?#]+)")'
