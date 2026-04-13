@@ -289,4 +289,42 @@ mod tests {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         assert!(body.is_empty());
     }
+
+    #[tokio::test]
+    async fn custom_csp_endpoint_accepts_reports() {
+        let body = serde_json::json!({"test": true});
+
+        let response = app("/custom-csp")
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/custom-csp")
+                    .header("content-type", "application/csp-report")
+                    .body(Body::from(serde_json::to_vec(&body).unwrap()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
+    }
+
+    #[tokio::test]
+    async fn custom_csp_endpoint_default_path_returns_404() {
+        let body = serde_json::json!({"test": true});
+
+        let response = app("/custom-csp")
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/csp-report")
+                    .header("content-type", "application/csp-report")
+                    .body(Body::from(serde_json::to_vec(&body).unwrap()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
 }
