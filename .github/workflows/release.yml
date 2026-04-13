@@ -28,8 +28,6 @@ jobs:
       #    roughly tripling the YAML complexity.
       #  - The QEMU speed penalty is acceptable here: this is a small Rust
       #    binary (~50 crate deps) and releases are infrequent.
-      #  - QEMU works identically on public and private repos, whereas
-      #    GitHub-hosted arm64 runners are only free for public repos.
       # If build times grow significantly, switch to a matrix of native
       # runners (ubuntu-latest + ubuntu-24.04-arm) with a manifest merge job.
       - name: Set up QEMU
