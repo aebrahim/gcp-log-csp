@@ -13,8 +13,10 @@ jobs:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
+      attestations: write
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -54,6 +56,7 @@ jobs:
             type=semver,pattern={{major}}
 
       - name: Build and push Docker image
+        id: push
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -61,3 +64,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          sbom: true
+          provenance: true
+
+      - name: Generate and upload SBOM to GitHub Release
+        uses: anchore/sbom-action@v0.17.9
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}
+          upload-release-assets: true
