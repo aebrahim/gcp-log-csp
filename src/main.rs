@@ -7,8 +7,8 @@ use axum::{
 };
 use std::net::SocketAddr;
 
-/// Maximum request body size: 1 MB
-const MAX_BODY_SIZE: usize = 1_048_576;
+/// Maximum request body size: 16 KiB
+const MAX_BODY_SIZE: usize = 16_384;
 
 /// Build the application router.
 pub fn app() -> Router {
