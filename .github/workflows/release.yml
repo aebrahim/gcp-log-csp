@@ -16,7 +16,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Multi-arch strategy: QEMU emulation on a single runner vs. native
       # arm64 runners (e.g. ubuntu-24.04-arm) with a manifest-merge job.
