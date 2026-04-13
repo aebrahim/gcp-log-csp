@@ -37,17 +37,23 @@ jobs:
       - run: cargo test
 
   docker:
-    name: Docker Build
-    runs-on: ubuntu-latest
+    name: Docker Build (${{ matrix.platform }})
+    # Native runners for each arch — no QEMU needed since CI only validates
+    # the build (push: false) so there is no manifest to merge.
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      # Uses QEMU to cross-build arm64 on an amd64 runner. See release.yml
-      # for the full rationale on why QEMU was chosen over native arm64 runners.
-      - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platform }}
           push: false
