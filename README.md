@@ -1,5 +1,7 @@
 # gcp-log-csp
 
+> **Note:** This project was mostly coded by [GitHub Copilot](https://github.com/features/copilot).
+
 A minimal [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) (CSP) report collector that logs violations as [Google Cloud Platform structured logs](https://cloud.google.com/logging/docs/structured-logging). Designed to run on [Cloud Run](https://cloud.google.com/run).
 
 ## Design Goals
