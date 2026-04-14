@@ -107,7 +107,10 @@ fn build_http_request_log(
     );
 
     if let Some(ua) = headers.get("user-agent").and_then(|v| v.to_str().ok()) {
-        obj.insert("userAgent".into(), serde_json::Value::String(ua.to_string()));
+        obj.insert(
+            "userAgent".into(),
+            serde_json::Value::String(ua.to_string()),
+        );
     }
     if let Some(referer) = headers.get("referer").and_then(|v| v.to_str().ok()) {
         obj.insert(
@@ -117,20 +120,14 @@ fn build_http_request_log(
     }
     // X-Forwarded-For / X-Real-IP: include as informational fields so that operators
     // running behind a trusted proxy can identify the originating client.
-    if let Some(xff) = headers
-        .get("x-forwarded-for")
-        .and_then(|v| v.to_str().ok())
-    {
+    if let Some(xff) = headers.get("x-forwarded-for").and_then(|v| v.to_str().ok()) {
         obj.insert(
             "xForwardedFor".into(),
             serde_json::Value::String(xff.to_string()),
         );
     }
     if let Some(xri) = headers.get("x-real-ip").and_then(|v| v.to_str().ok()) {
-        obj.insert(
-            "xRealIp".into(),
-            serde_json::Value::String(xri.to_string()),
-        );
+        obj.insert("xRealIp".into(), serde_json::Value::String(xri.to_string()));
     }
     if let Some(origin) = headers.get("origin").and_then(|v| v.to_str().ok()) {
         obj.insert(
@@ -449,7 +446,10 @@ mod tests {
         let mut headers = HeaderMap::new();
         headers.insert("user-agent", HeaderValue::from_static("TestBrowser/1.0"));
         headers.insert("referer", HeaderValue::from_static("https://example.com/"));
-        headers.insert("x-forwarded-for", HeaderValue::from_static("1.2.3.4, 5.6.7.8"));
+        headers.insert(
+            "x-forwarded-for",
+            HeaderValue::from_static("1.2.3.4, 5.6.7.8"),
+        );
         headers.insert("x-real-ip", HeaderValue::from_static("1.2.3.4"));
         headers.insert("origin", HeaderValue::from_static("https://example.com"));
         headers.insert("x-forwarded-proto", HeaderValue::from_static("https"));
